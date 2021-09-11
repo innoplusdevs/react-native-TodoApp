@@ -8,7 +8,7 @@ import {
   Button,
   ScrollView,
   SafeAreaView,
-  Alert,
+  Pressable,
 } from "react-native";
 
 import { connect } from "react-redux";
@@ -23,21 +23,23 @@ let TodoApp: any = (store: any) => {
   const toDoList = store.toDoList;
   const [value, setValue] = useState<string>("");
   const [error, showError] = useState<Boolean>(false);
-  const [cloudUploaded, setCloudUploaded] = useState<Boolean>(false);
+  const [cloudUploaded, setCloudUploaded] = useState<boolean>(false);
 
   const handleCloudUpload = async () => {
     let cloudTodos: any;
-    await axios
-      .get("https://jsonplaceholder.typicode.com/todos")
-      .then(({ data }: any) => {
-        cloudTodos = data;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    if (!cloudUploaded) {
+      await axios
+        .get("https://jsonplaceholder.typicode.com/todos")
+        .then(({ data }: any) => {
+          cloudTodos = data;
+          setCloudUploaded(true);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
 
-    store.dispatch(cloudUpload(cloudTodos));
-    setCloudUploaded(true);
+      store.dispatch(cloudUpload(cloudTodos));
+    }
   };
 
   const handleSubmit = (): void => {
@@ -69,11 +71,14 @@ let TodoApp: any = (store: any) => {
           style={styles.inputBox}
         />
         <Button title='Add Task' onPress={handleSubmit} />
-        <Button
-          title={cloudUploaded ? "Cloud Uploaded" : "Cloud Upload"}
+        <Pressable
+          style={styles.customButton}
           disabled={cloudUploaded}
-          onPress={handleCloudUpload}
-        />
+          onPress={handleCloudUpload}>
+          <Text style={styles.text}>
+            {cloudUploaded ? "Cloud Uploaded" : "Cloud Upload"}
+          </Text>
+        </Pressable>
       </View>
       {error && (
         <Text style={styles.error}>Error: Input field is empty...</Text>
@@ -120,15 +125,16 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
     width: "100%",
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-between",
     marginBottom: 20,
   },
   inputBox: {
-    width: 200,
+    width: "100%",
     borderColor: "green",
     borderRadius: 8,
     borderWidth: 2,
+    margin: 5,
     paddingLeft: 8,
   },
   title: {
@@ -144,16 +150,30 @@ const styles = StyleSheet.create({
   },
   listItem: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     alignItems: "center",
     width: "100%",
     marginBottom: 10,
   },
-  addButton: {
-    alignItems: "flex-end",
+  customButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 5,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    elevation: 3,
+    backgroundColor: "black",
+  },
+  text: {
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: "bold",
+    letterSpacing: 0.25,
+    color: "white",
   },
   task: {
-    width: 200,
+    width: "50%",
   },
   error: {
     color: "red",

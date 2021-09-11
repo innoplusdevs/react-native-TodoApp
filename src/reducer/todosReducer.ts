@@ -60,8 +60,8 @@ const cloudUpload = (cloudTodos: Array<object>, id: number): Array<object> => {
       }
       return todo;
     }))];
-  }
 
-  readyUploadTodos = true;
+    readyUploadTodos = true;
+  }
   return todos;
 }
