@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useState } from "react";
 import {
   StyleSheet,
@@ -6,52 +7,58 @@ import {
   TextInput,
   Button,
   ScrollView,
+  SafeAreaView,
+  Alert,
 } from "react-native";
 
 import { connect } from "react-redux";
-import { addTodo, deleteTodo, toggleTodo } from "../src/actions/actions";
-
-interface IToDo {
-  text: string;
-  completed: boolean;
-}
+import {
+  addTodo,
+  cloudUpload,
+  deleteTodo,
+  toggleTodo,
+} from "../src/actions/actions";
 
 let TodoApp: any = (store: any) => {
-  // console.log(store, "TodoApp");
   const toDoList = store.toDoList;
-  console.log(toDoList);
-
+  console.log(store.toDoList, "store.toDoList");
   const [value, setValue] = useState<string>("");
-  // const [toDoList, setToDos] = useState<IToDo[]>([]);
-  // const { toDoList }: any = useSelector((state) => state.toDoList);
   const [error, showError] = useState<Boolean>(false);
+  const [cloudUploaded, setCloudUploaded] = useState<Boolean>(false);
+
+  const handleCloudUpload = async () => {
+    let cloudTodos: any;
+    await axios
+      .get("https://jsonplaceholder.typicode.com/todos")
+      .then(({ data }: any) => {
+        cloudTodos = data;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    store.dispatch(cloudUpload(cloudTodos));
+    setCloudUploaded(true);
+  };
 
   const handleSubmit = (): void => {
     if (value.trim())
-      // setToDos([...toDoList, { text: value, completed: false }]);
       store.dispatch(addTodo({ text: value, completed: false }));
     else showError(true);
     setValue("");
   };
 
   const removeItem = (index: number): void => {
-    // const newToDoList = [...toDoList];
-    // newToDoList.splice(index, 1);
-    // setToDos(newToDoList);
     store.dispatch(deleteTodo(index));
   };
 
   const toggleComplete = (index: number): void => {
-    // const newToDoList = [...toDoList];
-    // newToDoList[index].completed = !newToDoList[index].completed;
-    // setToDos(newToDoList);
-    console.log(index);
     store.dispatch(toggleTodo(index));
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Todo List</Text>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Todo App</Text>
       <View style={styles.inputWrapper}>
         <TextInput
           placeholder='Enter your todo task...'
@@ -63,6 +70,11 @@ let TodoApp: any = (store: any) => {
           style={styles.inputBox}
         />
         <Button title='Add Task' onPress={handleSubmit} />
+        <Button
+          title={cloudUploaded ? "Cloud Uploaded" : "Cloud Upload"}
+          disabled={cloudUploaded}
+          onPress={handleCloudUpload}
+        />
       </View>
       {error && (
         <Text style={styles.error}>Error: Input field is empty...</Text>
@@ -76,7 +88,9 @@ let TodoApp: any = (store: any) => {
               style={[
                 styles.task,
                 {
-                  textDecorationLine: toDo.completed ? "line-through" : "none",
+                  textDecorationLine: toDo.task.completed
+                    ? "line-through"
+                    : "none",
                 },
               ]}>
               {toDo.task.text}
@@ -95,14 +109,14 @@ let TodoApp: any = (store: any) => {
           </View>
         ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     marginTop: 20,
-    padding: 10,
+    padding: 20,
     alignItems: "center",
   },
   inputWrapper: {
@@ -148,7 +162,6 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = (state: any) => {
-  console.log(state.toDoList, "abajo");
   return {
     toDoList: state.toDoList,
   };

@@ -1,4 +1,4 @@
-import { ADD_TODO, DELETE_TODO, TOGGLE_COMPLETE } from '../actions/types';
+import { ADD_TODO, CLOUD_UPLOAD, DELETE_TODO, TOGGLE_COMPLETE } from '../actions/types';
 
 let nextTodoId: number = 0;
 
@@ -28,3 +28,13 @@ export const toggleTodo = (id: number) => ({
     id: id,
   }
 });
+
+export const cloudUpload = (cloudTodos: any) => {
+  return {
+    type: CLOUD_UPLOAD,
+    payload: {
+      id: nextTodoId,
+      cloudTodos
+    }
+  }
+};
