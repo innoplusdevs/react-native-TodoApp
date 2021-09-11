@@ -21,7 +21,6 @@ import {
 
 let TodoApp: any = (store: any) => {
   const toDoList = store.toDoList;
-  console.log(store.toDoList, "store.toDoList");
   const [value, setValue] = useState<string>("");
   const [error, showError] = useState<Boolean>(false);
   const [cloudUploaded, setCloudUploaded] = useState<Boolean>(false);

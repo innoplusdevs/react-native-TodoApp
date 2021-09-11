@@ -46,7 +46,6 @@ export function todosReducer(state: any = initialState, action: any): any {
 }
 
 const cloudUpload = (cloudTodos: Array<object>, id: number): Array<object> => {
-  console.log(cloudTodos, 'cloudUpload function');
   let todos: Array<object> = [];
   let nextTodoId: number = id;
 
@@ -59,7 +58,6 @@ const cloudUpload = (cloudTodos: Array<object>, id: number): Array<object> => {
           completed: cloudTodo.completed,
         }
       }
-      console.log('hola');
       return todo;
     }))];
   }
