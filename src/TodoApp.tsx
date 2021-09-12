@@ -6,9 +6,12 @@ import {
   View,
   TextInput,
   Button,
-  ScrollView,
   SafeAreaView,
   Pressable,
+  FlatList,
+  ScrollView,
+  StatusBar,
+  Dimensions,
 } from "react-native";
 
 import { connect } from "react-redux";
@@ -20,6 +23,8 @@ import {
 } from "../src/actions/actions";
 
 let TodoApp: any = (store: any) => {
+  // console.log(Dimensions.get("window").height);
+
   const toDoList = store.toDoList;
   const [value, setValue] = useState<string>("");
   const [error, showError] = useState<Boolean>(false);
@@ -85,41 +90,44 @@ let TodoApp: any = (store: any) => {
       )}
       <Text style={styles.subtitle}>Your Tasks :</Text>
       {toDoList.length === 0 && <Text>No to do task available</Text>}
-      <ScrollView>
-        {toDoList.map((toDo: any) => (
-          <View style={styles.listItem} key={`${toDo.id}_${toDo.task.text}`}>
+      <FlatList
+        style={styles.list}
+        data={toDoList}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }: any) => (
+          <View style={styles.listItem}>
             <Text
               style={[
                 styles.task,
                 {
-                  textDecorationLine: toDo.task.completed
+                  textDecorationLine: item.task.completed
                     ? "line-through"
                     : "none",
                 },
               ]}>
-              {toDo.task.text}
+              {item.task.text}
             </Text>
             <Button
-              title={toDo.task.completed ? "Completed" : "Complete"}
-              onPress={() => toggleComplete(toDo.id)}
+              title={item.task.completed ? "Completed" : "Complete"}
+              onPress={() => toggleComplete(item.id)}
             />
             <Button
               title='X'
               onPress={() => {
-                removeItem(toDo.id);
+                removeItem(item.id);
               }}
               color='crimson'
             />
           </View>
-        ))}
-      </ScrollView>
+        )}
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
+    marginTop: StatusBar.currentHeight || 0,
     padding: 20,
     alignItems: "center",
   },
@@ -127,6 +135,7 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "column",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
   },
   inputBox: {
@@ -135,6 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 2,
     margin: 5,
+    padding: 4,
     paddingLeft: 8,
   },
   title: {
@@ -147,6 +157,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 20,
     color: "green",
+  },
+  list: {
+    height: "50%",
   },
   listItem: {
     flexDirection: "row",
